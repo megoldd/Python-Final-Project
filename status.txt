@@ -1,0 +1,30 @@
+# Status Report
+
+#### Your name
+
+Megan Goldman
+
+#### Your section leader's name
+
+Sky
+
+#### Project title
+
+Wordle Variation 
+
+***
+
+Short answers for the below questions suffice. If you want to alter your plan for your project (and obtain approval for the same), be sure to email your section leader directly!
+
+#### What have you done for your project so far?
+
+I have created a code for regular wordle where I will add a variation to 
+
+#### What have you not done for your project yet?
+
+Created the variation 
+
+#### What problems, if any, have you encountered?
+
+How to use pygame (figured it out)
+
