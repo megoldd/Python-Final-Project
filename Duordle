@@ -1,0 +1,162 @@
+import pygame
+import random
+
+
+pygame.init()
+
+width = 1200
+height = 700
+margin = 10
+tMargin = 100
+bMargin = 100
+lrMargin = 100
+
+sqSize = (width - 7 * margin - 5 * lrMargin) // 11
+huge_font = pygame.font.Font('freesansbold.ttf', sqSize)
+small_font = pygame.font.Font('freesansbold.ttf', sqSize//3)
+
+def findUnguessedLetters(guessed):
+    guessedLetters = "".join(guesses)
+    unguessedLetters = ""
+    for letter in alphabet:
+        if letter not in guessedLetters:
+            unguessedLetters = unguessedLetters + letter
+    return unguessedLetters
+
+
+def determineColor(guess, l):
+    letter = guess[l]
+    if letter == secret_words[l]:
+        return green
+    elif letter in secret_words:
+        Ntarget = secret_words.count(letter)
+        Ncorrect = 0
+        Noccurrance = 0
+        for i in range(5):
+            if guess[i] == letter:
+                if i <= l:
+                    Noccurrance += 1
+                if letter == secret_words[i]:
+                    Ncorrect += 1
+        if Ntarget - Ncorrect - Noccurrance >= 0:
+            return yellow
+    else:
+        return gray
+
+
+white = (255, 255, 255)
+black = (0, 0, 0)
+green = (6, 220, 160)
+yellow = (255, 210, 100)
+gray = (75, 75, 90)
+
+input = ""
+guesses = []
+alphabet = "abcdefghijklmnopqrstuvwxyz"
+unguessed = alphabet
+gameOver = False
+
+#screen setup 
+screen = pygame.display.set_mode([width, height])
+pygame.display.set_caption('Wordle')
+font = pygame.font.Font('freesansbold.ttf', 56)
+
+secret_word_one = random.choice(open('words.txt', 'r').readline().split())
+secret_word_two = random.choice(open('words.txt', 'r').readline().split())
+secret_words = []
+secret_words.append(secret_word_one)
+secret_words.append(secret_word_two)
+#print(secret_words)
+
+
+screen = pygame.display.set_mode([width, height])
+
+running = True 
+while running:
+    screen.fill(white)
+
+    letters = small_font.render(unguessed, False, gray)
+    surface = letters.get_rect(center = (width//2, tMargin//2))
+    screen.blit(letters, surface)
+
+ 
+ 
+    y = tMargin
+    for i in range(8):
+        x = lrMargin
+        for l in range(5):
+            square = pygame.Rect(x,y,sqSize, sqSize)
+            pygame.draw.rect(screen, gray, square, width=2, border_radius=3)
+
+            if i < len(guesses):
+                color = determineColor(guesses[i], l)
+                pygame.draw.rect(screen, color, square, border_radius=3)
+                letter = font.render(guesses[i][l], False, white)
+                surface = letter.get_rect(center = (x + sqSize//2, y + sqSize //2))
+                screen.blit(letter, surface)
+
+            if i == len(guesses) and l < len(input):
+                letter = font.render(input[l], False, gray)
+                surface = letter.get_rect(center = (x + sqSize//2, y + sqSize //2))
+                screen.blit(letter, surface)
+
+
+            x += sqSize + margin
+        for l in range(5):
+            square = pygame.Rect(x + 200,y,sqSize, sqSize)
+            pygame.draw.rect(screen, gray, square, width=2, border_radius=3)
+
+            if l < len(guesses):
+                color = determineColor(guesses[i], l)
+                pygame.draw.rect(screen, color, square, border_radius=3)
+                letter = font.render(guesses[i][l], False, white)
+                surface = letter.get_rect(center = (x + sqSize//2 +200, y + sqSize //2))
+                screen.blit(letter, surface)
+
+            if i == len(guesses) and l < len(input):
+                letter = font.render(input[l], False, gray)
+                surface = letter.get_rect(center = (x + sqSize//2 +200, y + sqSize //2))
+                screen.blit(letter, surface)
+
+
+            x += sqSize + margin
+        y += sqSize + margin
+        
+
+    if len(guesses) == 8 and guesses[5] != secret_words:
+        gameOver = True
+        letters = font.render(secret_words, False, gray)
+        surface = letters.get_rect(center = (width//2, height - bMargin//2 - margin))
+        screen.blit(letters, surface)
+
+    pygame.display.flip()
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
+
+            if event.key == pygame.K_BACKSPACE:
+                if len(input) > 0:
+                    input = input[:len(input)-1]
+
+            elif event.key == pygame.K_RETURN:
+                if len(input) == 5 and input: 
+                    guesses.append(input)
+                    unguessed = findUnguessedLetters(guesses)
+                    gameOver = True if input == secret_words else False
+                    input = ""
+            
+            elif event.key == pygame.K_SPACE:
+                gameOver = False
+                
+                print("The word was:\n", secret_words[1], "and", secret_words[2])
+                guesses = []
+                unguessed = alphabet
+                input = ""
+
+            elif len(input) < 5 and not gameOver:
+                input = input + event.unicode.lower()
